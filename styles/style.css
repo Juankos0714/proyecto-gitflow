@@ -1,0 +1,428 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex: 1;
+}
+
+.main-content {
+    flex: 3;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar {
+    flex: 1;
+    background-color: #d9d9d9;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    width: 50px;
+    height: auto;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: normal;
+    padding-bottom: 5px;
+}
+
+nav ul li a.active {
+    font-weight: bold;
+    border-bottom: 3px solid black;
+}
+
+.search-bar {
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    width: 200px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+    background-repeat: no-repeat;
+    background-position: 95% center;
+    background-size: 16px;
+}
+
+.title {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #555;
+}
+
+.main-title {
+    font-size: 72px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.button {
+    background-color: #222;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 20px 0;
+    display: inline-block;
+}
+
+.family-image {
+    margin: 20px 0;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.family-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.graph {
+    margin: 15px 0;
+    width: 100px;
+    height: 100px;
+}
+
+.motto {
+    text-align: center;
+    font-size: 24px;
+    margin: 30px 0;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.building-icon {
+    width: 50px;
+    height: 50px;
+    background-color: #000;
+    position: relative;
+}
+
+.building-icon::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    background-image: linear-gradient(to bottom, transparent 10%, rgba(255,255,255,0.2) 10%, rgba(255,255,255,0.2) 20%, transparent 20%);
+    background-size: 20% 20%;
+    background-repeat: repeat;
+}
+/* Estilos para la página de finanzas que puedes añadir a tu style.css */
+
+.finance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.date-range {
+    background-color: #f2f2f2;
+    padding: 8px 15px;
+    border-radius: 15px;
+    font-weight: bold;
+}
+
+.finance-summary {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.finance-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.finance-card h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.finance-card.total {
+    background-color: #4e73df;
+    color: white;
+    flex: 1;
+    margin-right: 20px;
+}
+
+.finance-card.total h3 {
+    color: white;
+}
+
+.finance-card.detail {
+    flex: 2;
+    margin-right: 20px;
+}
+
+.finance-card.discount {
+    background-color: #1cc88a;
+    color: white;
+    flex: 1;
+}
+
+.finance-card.discount h3 {
+    color: white;
+}
+
+.amount {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.service-name {
+    display: inline-block;
+    width: 60%;
+}
+
+.service-amount {
+    display: inline-block;
+    width: 40%;
+    text-align: right;
+    font-weight: bold;
+}
+
+.finance-card.detail ul {
+    list-style: none;
+    padding: 0;
+}
+
+.finance-card.detail li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.finance-card.detail li:last-child {
+    border-bottom: none;
+}
+
+.chart-container {
+    margin: 30px 0;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.chart-container h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.finance-chart {
+    height: 300px;
+    width: 100%;
+}
+
+.payment-status {
+    margin: 30px 0;
+}
+
+.paid {
+    color: #1cc88a;
+    font-weight: bold;
+}
+
+.unpaid {
+    color: #e74a3b;
+    font-weight: bold;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #f8f9fc;
+    border-top: 1px solid #e3e6f0;
+}
+        /* Estilos mejorados para la interfaz */
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        #resultados { margin-top: 20px; }
+        #resultados pre { white-space: pre-wrap; word-wrap: break-word; } /* Para textos largos */
+        .input-group { margin-bottom: 10px; }
+        .input-group label { display: block; margin-bottom: 5px; }
+        .input-group input, .input-group select { width: 100%; padding: 8px; box-sizing: border-box; }
+        .action-container { display: flex; justify-content: space-between; margin-top: 20px; }
+        .action-container button { padding: 10px 15px; cursor: pointer; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        .notification {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            color: white;
+            background-color: #4CAF50;
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 5px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+        .tab.active {
+            background-color: #fff;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .btn {
+            background-color: #222;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .detalle-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+@media screen and (max-width: 768px) {
+    .finance-summary {
+        flex-direction: column;
+    }
+    
+    .finance-card.total,
+    .finance-card.detail,
+    .finance-card.discount {
+        width: 100%;
+        margin-right: 0;
+    }
+}
+
+

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Octava Vecindad</title>
+    <link rel="stylesheet" href="./styles/style.css">
+    <style>
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="./images/logo.PNG" alt="Logo La Octava Vecindad">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" id="inicio-link" class="active">Inicio</a></li>
+                <li><a href="#" id="administrar-link">Administrar</a></li>
+                <li><a href="#" id="base-datos-link">Base de datos</a></li>
+            </ul>
+        </nav>
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Buscar...">
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="main-content" id="content-area">
+            <div class="title">
+                <div class="subtitle">La Octava</div>
+                <div class="main-title">Vecindad</div>
+            </div>
+            
+            <button class="button" id="action-button">Administrar</button>
+            
+            <div class="family-image">
+                <img src="./images/feliz.jpg" alt="Familia feliz">
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="motto">La transparencia es nuestra principal arma</div>
+            
+            <div class="chart">
+                <div class="chart-line"></div>
+                <img src="./images/Captura.PNG" alt="Gráfica">
+            </div>
+            
+            <a href="#" class="button">Finanzas</a>
+        </div>
+    </div>
+
+    <!-- Modal para agregar apartamento -->
+    <div id="modal-agregar" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Agregar Apartamento</h2>
+            <div class="input-group">
+                <label for="numero">Número de Apartamento:</label>
+                <input type="text" id="numero" required>
+            </div>
+            <div class="input-group">
+                <label for="dueno">Dueño:</label>
+                <input type="text" id="dueno" required>
+            </div>
+            <div class="input-group">
+                <label for="inquilino">Inquilino (dejar en blanco si está desocupado):</label>
+                <input type="text" id="inquilino">
+            </div>
+            <div id="ocupado-fields" style="display: none;">
+                <div class="input-group">
+                    <label for="adultos">Número de Adultos:</label>
+                    <input type="number" id="adultos" min="0" value="0">
+                </div>
+                <div class="input-group">
+                    <label for="ninos">Número de Niños:</label>
+                    <input type="number" id="ninos" min="0" value="0">
+                </div>
+            </div>
+            <div class="action-container">
+                <button class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+                <button class="btn btn-success" id="btn-guardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para mostrar detalles -->
+    <div id="modal-detalle" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Detalle de Cálculos</h2>
+            <div class="detalle-container" id="detalle-content"></div>
+            <div class="action-container">
+                <button class="btn btn-success" id="btn-cerrar-detalle">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de administración -->
+    <div id="panel-admin" style="display: none;">
+        <div class="notification" id="notification">Operación realizada con éxito</div>
+        
+        <div class="tabs">
+            <div class="tab active" id="tab-datos">Datos</div>
+            <div class="tab" id="tab-calculos">Cálculos</div>
+            <div class="tab" id="tab-resultados">Resultados</div>
+        </div>
+        
+        <div class="tab-content active" id="content-datos">
+            <h3>Administración de Apartamentos</h3>
+            <p>Seleccione cómo desea crear los datos:</p>
+            <div class="action-container">
+                <button class="btn" id="btn-datos-predefinidos">Usar datos predefinidos</button>
+                <button class="btn" id="btn-agregar-manual">Agregar manualmente</button>
+            </div>
+            <div id="tabla-apartamentos"></div>
+        </div>
+        
+        <div class="tab-content" id="content-calculos">
+            <h3>Cálculo de Administración</h3>
+            <p>Haga clic en el botón para calcular la administración de todos los apartamentos:</p>
+            <div class="action-container">
+                <button class="btn btn-success" id="btn-calcular">Calcular Administración</button>
+                <button class="btn" id="btn-ver-detalle">Ver Detalle de Cálculos</button>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="content-resultados">
+            <h3>Resultados</h3>
+            <div id="resultados"></div>
+        </div>
+    </div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        let apartamentos =[];
+        const COSTO_PISCINA_POR_ADULTO=2000;
+        const COSTO_FIJO=50000;
+        const COSTO_ASEO=15000;
+        const COSTO_ZONAS_SOCIALES=10000;
+        const COSTO_JUEGOS=5000;
+        const PORCENTAJE_DESCUENTO=0.2;
+        class Apartamento {
+          constructor(numero, dueno, inquilino, numAdultos, numNinos,costoAseo,costoJuegos,costoPiscina,costoZonasSociales) {
+            this.numero = numero;
+            this.dueno = dueno;
+            this.inquilino = inquilino;
+            this.numAdultos = numAdultos;
+            this.numNinos = numNinos;
+            this.costoPiscina=costoPiscina;
+            this.costoAseo=costoAseo;
+            this.costoJuegos=costoJuegos;
+            this.costoZonasSociales=costoZonasSociales;
+          }
+        }
+        // Referencias a los elementos del DOM
+        const inicioLink = document.getElementById('inicio-link');
+        const administrarLink = document.getElementById('administrar-link');
+        const baseDatosLink = document.getElementById('base-datos-link');
+        const contentArea = document.getElementById('content-area');
+        const actionButton = document.getElementById('action-button');
+        const panelAdmin = document.getElementById('panel-admin');
+        
+        // Modales
+        const modalAgregar = document.getElementById('modal-agregar');
+        const modalDetalle = document.getElementById('modal-detalle');
+        const closeButtons = document.querySelectorAll('.close');
+        
+        // Botones
+        const btnDatosPredefinidos = document.getElementById('btn-datos-predefinidos');
+        const btnAgregarManual = document.getElementById('btn-agregar-manual');
+        const btnGuardar = document.getElementById('btn-guardar');
+        const btnCancelar = document.getElementById('btn-cancelar');
+        const btnCalcular = document.getElementById('btn-calcular');
+        const btnVerDetalle = document.getElementById('btn-ver-detalle');
+        const btnCerrarDetalle = document.getElementById('btn-cerrar-detalle');
+        
+        // Inputs
+        const numeroInput = document.getElementById('numero');
+        const duenoInput = document.getElementById('dueno');
+        const inquilinoInput = document.getElementById('inquilino');
+        const adultosInput = document.getElementById('adultos');
+        const ninosInput = document.getElementById('ninos');
+        const ocupadoFields = document.getElementById('ocupado-fields');
+        
+        // Tabs
+        const tabDatos = document.getElementById('tab-datos');
+        const tabCalculos = document.getElementById('tab-calculos');
+        const tabResultados = document.getElementById('tab-resultados');
+        const contentDatos = document.getElementById('content-datos');
+        const contentCalculos = document.getElementById('content-calculos');
+        const contentResultados = document.getElementById('content-resultados');
+        
+        // Notificación
+        const notification = document.getElementById('notification');
+        
+        // Configurar validaciones para los inputs
+        setupValidations();
+        
+        // Función para mostrar notificación
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    
+        // Validaciones para los campos de entrada
+        function setupValidations() {
+            // Validación del número de apartamento (entre 100 y 599)
+            numeroInput.addEventListener('input', function() {
+                let value = this.value.trim();
+                
+                // Eliminar caracteres no numéricos
+                value = value.replace(/[^0-9]/g, '');
+                
+                this.value = value;
+            });
+    
+            numeroInput.addEventListener('blur', function() {
+                const value = parseInt(this.value);
+                if (isNaN(value) || value < 100 || value > 599) {
+                    showNotification('El número de apartamento debe estar entre 100 y 599');
+                    this.classList.add('invalid-input');
+                } else {
+                    this.classList.remove('invalid-input');
+                }
+            });
+    
+            // Validación de campos numéricos (adultos y niños)
+            [adultosInput, ninosInput].forEach(input => {
+                input.addEventListener('input', function() {
+                    // Eliminar caracteres no numéricos
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    // Asegurar que no sea negativo
+                    if (this.value && parseInt(this.value) < 0) {
+                        this.value = '0';
+                    }
+                });
+            });
+        }
+    
+        // Función para cambiar entre pestañas
+        function activateTab(tab, content) {
+            // Desactivar todas las pestañas
+            tabDatos.classList.remove('active');
+            tabCalculos.classList.remove('active');
+            tabResultados.classList.remove('active');
+            contentDatos.classList.remove('active');
+            contentCalculos.classList.remove('active');
+            contentResultados.classList.remove('active');
+            
+            // Activar la pestaña seleccionada
+            tab.classList.add('active');
+            content.classList.add('active');
+        }
+    
+        // Event listeners para las pestañas
+        tabDatos.addEventListener('click', () => activateTab(tabDatos, contentDatos));
+        tabCalculos.addEventListener('click', () => activateTab(tabCalculos, contentCalculos));
+        tabResultados.addEventListener('click', () => activateTab(tabResultados, contentResultados));
+    
+        // Función para cerrar los modales
+        function closeModals() {
+            modalAgregar.style.display = 'none';
+            modalDetalle.style.display = 'none';
+        }
+    
+        // Event listeners para cerrar modales
+        closeButtons.forEach(button => {
+            button.addEventListener('click', closeModals);
+        });
+        btnCancelar.addEventListener('click', closeModals);
+        btnCerrarDetalle.addEventListener('click', closeModals);
+    
+        // Cerrar modal al hacer clic fuera del contenido
+        window.addEventListener('click', (event) => {
+            if (event.target === modalAgregar || event.target === modalDetalle) {
+                closeModals();
+            }
+        });
+    
+        // Mostrar campos de ocupado solo cuando hay inquilino
+        inquilinoInput.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                ocupadoFields.style.display = 'block';
+            } else {
+                ocupadoFields.style.display = 'none';
+                adultosInput.value = 0;
+                ninosInput.value = 0;
+            }
+        });
+    
+        // Función para renderizar la tabla de apartamentos
+        function renderizarTablaApartamentos() {
+            const tablaContainer = document.getElementById('tabla-apartamentos');
+            if (apartamentos.length === 0) {
+                tablaContainer.innerHTML = '<p>No hay apartamentos registrados.</p>';
+                return;
+            }
+    
+            let tablaHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N° Apto</th>
+                            <th>Dueño</th>
+                            <th>Inquilino</th>
+                            <th>Adultos</th>
+                            <th>Niños</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+    
+            apartamentos.forEach(apto => {
+                tablaHTML += `
+                    <tr>
+                        <td>${apto.numero}</td>
+                        <td>${apto.dueno}</td>
+                        <td>${apto.inquilino || 'Desocupado'}</td>
+                        <td>${apto.numAdultos}</td>
+                        <td>${apto.numNinos}</td>
+                    </tr>
+                `;
+            });
+    
+            tablaHTML += `
+                    </tbody>
+                </table>
+                <div class="action-container">
+                    <button class="btn" id="btn-agregar-otro">Agregar Otro Apartamento</button>
+                </div>
+            `;
+    
+            tablaContainer.innerHTML = tablaHTML;
+    
+            // Agregar evento al nuevo botón
+            document.getElementById('btn-agregar-otro').addEventListener('click', () => {
+                // Limpiar el formulario
+                numeroInput.value = '';
+                duenoInput.value = '';
+                inquilinoInput.value = '';
+                adultosInput.value = '0';
+                ninosInput.value = '0';
+                ocupadoFields.style.display = 'none';
+                
+                // Mostrar el modal
+                modalAgregar.style.display = 'block';
+            });
+        }
+    
+        // Función para cargar datos predefinidos
+        function cargarDatosPredefinidos() {
+            apartamentos = [
+                new Apartamento(102, "María", "Ana", 2, 2),
+                new Apartamento(303, "José", "José", 3, 2),
+                new Apartamento(202, "Jesús", "Beto", 1, 0),
+                new Apartamento(203, "David", "Carlos", 4, 0),
+                new Apartamento(302, "Daniel", "Daniel", 3, 0),
+                new Apartamento(103, "Moisés", "Federico", 1, 1),
+                new Apartamento(401, "Eustaquio", "Zulia", 1, 2),
+                new Apartamento(402, "Sacarías", "Sacarías", 2, 1),
+                new Apartamento(403, "Mateo", "", 0, 0),
+                new Apartamento(501, "Marcos", "Gonzalo", 2, 1),
+                new Apartamento(502, "Jesús", "", 0, 0)
+            ];
+            renderizarTablaApartamentos();
+            showNotification('Se han cargado los datos predefinidos correctamente.');
+        }
+    
+        // Event listener para el botón de datos predefinidos
+        btnDatosPredefinidos.addEventListener('click', cargarDatosPredefinidos);
+    
+        // Event listener para el botón de agregar manualmente
+        btnAgregarManual.addEventListener('click', () => {
+            // Limpiar el formulario
+            numeroInput.value = '';
+            duenoInput.value = '';
+            inquilinoInput.value = '';
+            adultosInput.value = '0';
+            ninosInput.value = '0';
+            ocupadoFields.style.display = 'none';
+            
+            // Quitar clase invalid-input si existe
+            numeroInput.classList.remove('invalid-input');
+            
+            // Mostrar el modal
+            modalAgregar.style.display = 'block';
+        });
+    
+        // Event listener para guardar nuevo apartamento
+        btnGuardar.addEventListener('click', () => {
+            const numero = numeroInput.value.trim();
+            const dueno = duenoInput.value.trim();
+            const inquilino = inquilinoInput.value.trim();
+            let numAdultos = parseInt(adultosInput.value) || 0;
+            let numNinos = parseInt(ninosInput.value) || 0;
+    
+            // Validación básica
+            if (!numero || !dueno) {
+                showNotification('Por favor complete los campos obligatorios.');
+                return;
+            }
+    
+            // Validar número de apartamento
+            const numApto = parseInt(numero);
+            if (isNaN(numApto) || numApto < 100 || numApto > 599) {
+                showNotification('El número de apartamento debe estar entre 100 y 599.');
+                numeroInput.classList.add('invalid-input');
+                return;
+            }
+    
+            // Verificar si el apartamento ya existe
+            const existeApto = apartamentos.some(apto => apto.numero === numero);
+            if (existeApto) {
+                showNotification('Este número de apartamento ya existe.');
+                numeroInput.classList.add('invalid-input');
+                return;
+            }
+    
+            // Si no hay inquilino, establecer adultos y niños en 0
+            if (!inquilino) {
+                numAdultos = 0;
+                numNinos = 0;
+            }
+    
+            // Agregar el nuevo apartamento
+            apartamentos.push(new Apartamento(numero, dueno, inquilino, numAdultos, numNinos));
+            closeModals();
+            renderizarTablaApartamentos();
+            showNotification('Apartamento agregado correctamente.');
+        });
+    // Función para calcular costos
+    function calcularCostos() {
+        detalleCalculos = "DETALLE DE CÁLCULOS:\n\n";
+
+        for (const apto of apartamentos) {
+            const estaOcupado = apto.inquilino !== null && apto.inquilino.trim() !== "";
+
+            detalleCalculos += `Apartamento: ${apto.numero}\n`;
+            detalleCalculos += `Dueño: ${apto.dueno}\n`;
+            detalleCalculos += `Inquilino: ${estaOcupado ? apto.inquilino : "Desocupado"}\n`;
+
+            if (estaOcupado) {
+                detalleCalculos += `Adultos: ${apto.numAdultos}\n`;
+                detalleCalculos += `Niños: ${apto.numNinos}\n\n`;
+
+                apto.costoPiscina = apto.numAdultos * COSTO_PISCINA_POR_ADULTO;
+                detalleCalculos += `Costo Piscina: $${apto.costoPiscina} (${apto.numAdultos} adultos x $${COSTO_PISCINA_POR_ADULTO})\n`;
+
+                if (apto.numNinos > 0) {
+                    apto.costoJuegos = COSTO_JUEGOS;
+                    detalleCalculos += `Costo Juegos: $${apto.costoJuegos} (hay ${apto.numNinos} niños)\n`;
+                } else {
+                    apto.costoJuegos = 0;
+                    detalleCalculos += `Costo Juegos: $0 (no hay niños)\n`;
+                }
+
+                apto.costoZonasSociales = COSTO_ZONAS_SOCIALES;
+                detalleCalculos += `Costo Zonas Sociales: $${apto.costoZonasSociales} (apartamento ocupado)\n`;
+
+                const piso = apto.numero;
+                if (piso > 100 && piso < 300) {
+                    apto.costoAseo = COSTO_ASEO;
+                    detalleCalculos += `Costo Aseo: $${apto.costoAseo} (piso ${piso})\n`;
+                } else {
+                    apto.costoAseo = 0;
+                    detalleCalculos += `Costo Aseo: $0 (no aplica para pisos superiores al 2)\n`;
+                }
+
+                const subtotal = apto.costoPiscina + apto.costoJuegos + apto.costoZonasSociales + apto.costoAseo;
+                apto.subtotal = subtotal;
+                detalleCalculos += `Subtotal: $${subtotal}\n`;
+
+                if (apto.dueno === apto.inquilino) {
+                    apto.descuento = Math.floor(subtotal * PORCENTAJE_DESCUENTO);
+                    detalleCalculos += `Descuento: $${apto.descuento} (${Math.floor(PORCENTAJE_DESCUENTO * 100)}% porque el dueño vive allí)\n`;
+                } else {
+                    apto.descuento = 0;
+                    detalleCalculos += `Descuento: $0 (no aplica)\n`;
+                }
+
+                apto.totalPagar = COSTO_FIJO + subtotal - apto.descuento;
+                detalleCalculos += `Total a Pagar: $${apto.totalPagar} (Costo fijo $${COSTO_FIJO} + Subtotal $${subtotal} - Descuento $${apto.descuento})\n`;
+            } else {
+                apto.costoPiscina = 0;
+                apto.costoJuegos = 0;
+                apto.costoZonasSociales = 0;
+                apto.costoAseo = 0;
+                apto.subtotal = 0;
+                apto.descuento = 0;
+                apto.totalPagar = COSTO_FIJO;
+
+                detalleCalculos += "El apartamento está desocupado.\n";
+                detalleCalculos += `Solo se cobra el costo fijo: $${COSTO_FIJO}\n`;
+                detalleCalculos += `Total a Pagar: $${apto.totalPagar}\n`;
+            }
+            detalleCalculos += "-----------------------------------\n\n";
+        }
+
+        mostrarResultados();
+        showNotification('Se han calculado los costos de administración correctamente.');
+    }
+
+    // Event listener para el botón calcular
+    btnCalcular.addEventListener('click', function() {
+        if (apartamentos.length === 0) {
+            showNotification('No hay apartamentos para calcular. Por favor, agregue al menos uno.');
+            return;
+        }
+        calcularCostos();
+        activateTab(tabResultados, contentResultados);
+    });
+
+    // Event listener para ver detalle
+    btnVerDetalle.addEventListener('click', function() {
+        if (detalleCalculos) {
+            document.getElementById('detalle-content').innerHTML = `<pre>${detalleCalculos}</pre>`;
+            modalDetalle.style.display = 'block';
+        } else {
+            showNotification('Primero debe calcular los costos de administración.');
+        }
+    });
+
+    // Función para mostrar resultados
+    function mostrarResultados() {
+        const resultadosDiv = document.getElementById('resultados');
+        
+        if (apartamentos.length === 0) {
+            resultadosDiv.innerHTML = '<p>No hay datos para mostrar. Por favor, agregue apartamentos.</p>';
+            return;
+        }
+
+        let tablaHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>N° Apto</th>
+                        <th>Dueño</th>
+                        <th>Inquilino</th>
+                        <th>Adultos</th>
+                        <th>Niños</th>
+                        <th>Piscina</th>
+                        <th>Juegos</th>
+                        <th>Zonas sociales</th>
+                        <th>Aseo</th>
+                        <th>Subtotal</th>
+                        <th>Descuento</th>
+                        <th>Total Pagar</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        apartamentos.forEach(apto => {
+            tablaHTML += `
+                <tr>
+                    <td>${apto.numero}</td>
+                    <td>${apto.dueno}</td>
+                    <td>${apto.inquilino || 'Desocupado'}</td>
+                    <td>${apto.numAdultos}</td>
+                    <td>${apto.numNinos}</td>
+                    <td>${apto.costoPiscina}</td>
+                    <td>${apto.costoJuegos}</td>
+                    <td>${apto.costoZonasSociales}</td>
+                    <td>${apto.costoAseo}</td>
+                    <td>${apto.subtotal}</td>
+                    <td>${apto.descuento}</td>
+                    <td>${apto.totalPagar}</td>
+                </tr>
+            `;
+        });
+
+        tablaHTML += `
+                </tbody>
+            </table>
+        `;
+
+        resultadosDiv.innerHTML = tablaHTML;
+    }
+
+    // Gestión de navegación principal
+    function resetActiveLinks() {
+        inicioLink.classList.remove('active');
+        administrarLink.classList.remove('active');
+        baseDatosLink.classList.remove('active');
+    }
+
+    // Mostrar panel de administración
+    function showAdminPanel() {
+        contentArea.style.display = 'none';
+        panelAdmin.style.display = 'block';
+    }
+
+    // Ocultar panel de administración
+    function hideAdminPanel() {
+        contentArea.style.display = 'flex';
+        panelAdmin.style.display = 'none';
+    }
+
+    // Event listener para botón de acción principal
+    actionButton.addEventListener('click', function() {
+        showAdminPanel();
+        resetActiveLinks();
+        administrarLink.classList.add('active');
+    });
+
+    // Event listeners para los links de navegación
+    administrarLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        resetActiveLinks();
+        administrarLink.classList.add('active');
+        showAdminPanel();
+    });
+    
+    inicioLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        resetActiveLinks();
+        inicioLink.classList.add('active');
+        hideAdminPanel();
+        
+        contentArea.innerHTML = `
+            <div class="title">
+                <div class="subtitle">La Octava</div>
+                <div class="main-title">Vecindad</div>
+            </div>
+            
+            <button class="button" id="action-button-home">Administrar</button>
+            
+            <div class="family-image">
+                <img src="./images/feliz.jpg" alt="Familia feliz">
+            </div>
+        `;
+        
+        // Reconfigurar el botón
+        const actionButtonHome = document.getElementById('action-button-home');
+        actionButtonHome.addEventListener('click', function() {
+            showAdminPanel();
+            resetActiveLinks();
+            administrarLink.classList.add('active');
+        });
+    });
+    
+    baseDatosLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        resetActiveLinks();
+        baseDatosLink.classList.add('active');
+        hideAdminPanel();
+        
+        // Mostrar una tabla con datos de ejemplo o los datos calculados si existen
+        let contenidoTabla = '';
+        
+        if (apartamentos.length > 0 && apartamentos[0].totalPagar > 0) {
+            // Si ya tenemos datos calculados, mostrarlos
+            contenidoTabla = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N° Apto</th>
+                            <th>Dueño</th>
+                            <th>Inquilino</th>
+                            <th>Adultos</th>
+                            <th>Niños</th>
+                            <th>Piscina</th>
+                            <th>Juegos</th>
+                            <th>Zonas sociales</th>
+                            <th>Aseo</th>
+                            <th>Subtotal</th>
+                            <th>Descuento</th>
+                            <th>Total Pagar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            apartamentos.slice(0, 5).forEach(apto => {
+                contenidoTabla += `
+                    <tr>
+                        <td>${apto.numero}</td>
+                        <td>${apto.dueno}</td>
+                        <td>${apto.inquilino || 'Desocupado'}</td>
+                        <td>${apto.numAdultos}</td>
+                        <td>${apto.numNinos}</td>
+                        <td>${apto.costoPiscina}</td>
+                        <td>${apto.costoJuegos}</td>
+                        <td>${apto.costoZonasSociales}</td>
+                        <td>${apto.costoAseo}</td>
+                        <td>${apto.subtotal}</td>
+                        <td>${apto.descuento}</td>
+                        <td>${apto.totalPagar}</td>
+                    </tr>
+                `;
+            });
+            
+            contenidoTabla += `
+                    </tbody>
+                </table>
+            `;
+        } else {
+            // Mostrar datos de ejemplo
+            contenidoTabla = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N° Apto</th>
+                            <th>Dueño</th>
+                            <th>Inquilino</th>
+                            <th>Adultos</th>
+                            <th>Niños</th>
+                            <th>Piscina</th>
+                            <th>Juegos</th>
+                            <th>Zonas sociales</th>
+                            <th>Aseo</th>
+                            <th>Subtotal</th>
+                            <th>Descuento</th>
+                            <th>Total Pagar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>102</td>
+                            <td>María</td>
+                            <td>Ana</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>4.000</td>
+                            <td>5.000</td>
+                            <td>10.000</td>
+                            <td>15.000</td>
+                            <td>34.000</td>
+                            <td>0</td>
+                            <td>84.000</td>
+                        </tr>
+                        <tr>
+                            <td>303</td>
+                            <td>José</td>
+                            <td>José</td>
+                            <td>3</td>
+                            <td>2</td>
+                            <td>6.000</td>
+                            <td>5.000</td>
+                            <td>10.000</td>
+                            <td>0</td>
+                            <td>21.000</td>
+                            <td>4.200</td>
+                            <td>66.800</td>
+                        </tr>
+                        <tr>
+                            <td>202</td>
+                            <td>Jesús</td>
+                            <td>Beto</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>2.000</td>
+                            <td>0</td>
+                            <td>10.000</td>
+                            <td>15.000</td>
+                            <td>27.000</td>
+                            <td>0</td>
+                            <td>77.000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        contentArea.innerHTML = `
+            <div class="title">
+                <div class="subtitle">La Octava</div>
+                <div class="main-title">Vecindad</div>
+            </div>
+            
+            <div class="database-view">
+                <h3>Base de datos</h3>
+                ${contenidoTabla}
+            </div>
+            
+            <button class="button" id="action-button-db">Ver Administración</button>
+        `;
+        
+        // Reconfigurar el botón
+        const actionButtonDb = document.getElementById('action-button-db');
+        actionButtonDb.addEventListener('click', function() {
+            showAdminPanel();
+            resetActiveLinks();
+            administrarLink.classList.add('active');
+        });
+    });
+});
+
+ 
+</script>
+
+</body>
+</html>
